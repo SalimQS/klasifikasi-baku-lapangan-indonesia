@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .body-container{
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-container{
+            background-color: white;
+            padding: 20px;
+        }
+        #tUraian{
+            resize: none;
+        }
+        .modal-container input, .modal-container textarea{
+            box-sizing: border-box;
+            outline: none;
+            width: 20vw;
+            padding: 5px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="body-container">
+        <div class="modal-container">
+            <h3 style="text-align: center;">Tambah Turunan</h3><br><hr><br>
+            <form action="" method="post">
+                <label for="tKode"><small>Kode:</small></label><br>
+                <input name="" id="tKode" type="text" required><br><br>
+                <label for="tJudul"><small>Judul:</small></label><br>
+                <input name="" id="tJudul" type="text" required><br><br>
+                <label for="tUraian"><small>Uraian:</small></label><br>
+                <textarea name="" id="tUraian" cols="30" rows="10" required></textarea><br><br>
+                <input type="submit" value="Tambah">
+            </form>
+        </div>
+    </div>
+</body>
+</html>
