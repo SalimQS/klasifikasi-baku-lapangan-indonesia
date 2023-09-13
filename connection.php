@@ -4,7 +4,7 @@ function OpenMYSQL()
     $server = "localhost";
     $user = "root";
     $pass = "";
-    $database = "sk4_232";
+    $database = "revivemy_salimqs";
     
     $conn = mysqli_connect($server, $user, $pass, $database);
     

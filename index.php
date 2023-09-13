@@ -48,8 +48,33 @@
             width: auto;
             padding: 10px;
             border-radius: 6px;
+            cursor: pointer;
         }
-        .mg-01 input[type="text"]{ width: calc(100% - 145px); }
+        .mg-01 select{ width: calc(20vw - 30px); }
+        .mg-01 input[type="text"]{ width: calc(60vw - 40px); }
+
+        .search-bar{
+            width: fit-content;
+        }
+        
+        .data{
+            display: none;
+            background-color: white;
+            position: absolute;
+            box-shadow: 1px 2px 10px rgb(177, 177, 177);
+            width: calc(60vw - 40px);
+            cursor: pointer;
+        }
+        .data a{
+            text-decoration: none;
+            color: black;
+            display: block;
+            margin: 5px 0;
+            padding: 5px 20px;
+        }
+        .data a:not(.data-child-no-hover):hover{
+            background-color: rgb(244, 244, 244);
+        }
 
         .mh{
             border: 1px solid black;
@@ -207,6 +232,9 @@
             width: 20vw;
             padding: 5px 15px;
         }
+        .centering-div{
+            max-width: 80vw;
+        }
     </style>
 </head>
 <body>
@@ -233,33 +261,18 @@
     <div class="container">
         <div class="centering-div">
         <div class="mg-01">
-            <input type="text" list="kbli" placeholder="Masukkan Sesuatu">
-            <datalist id="kbli">
-                <?php
-                    require_once("connection.php");
-                    $conn = OpenMYSQL();
-
-                    if($result = mysqli_query($conn, "SELECT * FROM `kbli` WHERE 1"))
-                    {
-                        if(mysqli_num_rows($result) > 0)
-                        {
-                            while($row = mysqli_fetch_assoc($result))
-                            {
-                                if(!ctype_alpha($row['kode']))
-                                    echo "<option>" . $row['kode'] . " - " . $row['judul'] . "</option>";
-                            }
-                        }
-                    }
-
-                    CloseMYSQL($conn);
-                ?>
-            </datalist>
-            <select>
-                <option value="1">Semua KBLI</option>
-                <option value="2">Kode KBLI</option>
-                <option value="3">Judul KBLI</option>
-                <option value="4">Uraian KBLI</option>
-            </select>
+            <div class="search-bar">
+                <input class="search-bar-input" id="search-bar-input" type="text" list="kbli" placeholder="Masukkan Sesuatu">
+                <div class="data" id="data-list">
+                    <a class="data-child-no-hover">No data available.</a>
+                </div>
+                <select>
+                    <option value="1">Semua KBLI</option>
+                    <option value="2">Kode KBLI</option>
+                    <option value="3">Judul KBLI</option>
+                    <option value="4">Uraian KBLI</option>
+                </select>
+            </div>
         </div>
         <div class="mg-02" style="margin-top: 20px;">
             <div class="dashboard">
@@ -455,5 +468,17 @@
     <?php
     }
     ?>
+    <script>
+        document.querySelector('.search-bar-input').addEventListener("input", () => {
+            document.querySelector('.data').style.display = "block";
+        });
+        document.body.addEventListener("click", (event) => {
+            if(event.target.id == "search-bar-input") {
+                document.querySelector('.data').style.display = "block";
+            } else {
+                document.querySelector('.data').style.display = "none";
+            }
+        });
+    </script>
 </body>
 </html>
