@@ -8,6 +8,7 @@
     <script src="plugin/fontawesome/fontawesome.js"></script>
     <link rel="stylesheet" href="plugin/bootstrap/css/bootstrap.min.css"></link>
     <script src="plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="plugin/jquery/jquery.js"></script>
     <style>
         @font-face {
             font-family: Montserrat;
@@ -30,9 +31,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        .centering-div{
-
+            padding-bottom: 40px;
         }
 
         .mg-01, .mg-02{
@@ -48,7 +47,6 @@
             width: auto;
             padding: 10px;
             border-radius: 6px;
-            cursor: pointer;
         }
         .mg-01 select{ width: calc(20vw - 30px); }
         .mg-01 input[type="text"]{ width: calc(60vw - 40px); }
@@ -235,6 +233,24 @@
         .centering-div{
             max-width: 80vw;
         }
+        .search-bar-button{
+            position: absolute;
+            background-color: transparent;
+            color: #272727;
+            border: none;
+            margin-left: -40px;
+            margin-top: 10px;
+            padding: 0 5px;
+        }
+
+        #user-dropdown{
+            left: auto;
+            margin-top: -10px;
+        }
+
+        #user-dropdown a{
+            color: black;
+        }
     </style>
 </head>
 <body>
@@ -250,7 +266,12 @@
                     require_once("function.php");
                     //---
                     if(isUserLoggedIn()){
-                        echo("<div class='profile'>" . getUserData('name') . " -  " . getAdminName(getUserData('admin')) . "</div>");
+                        echo("
+                            <div class='profile' role='button' data-bs-toggle='dropdown' data-bs-target='#user-dropdown' aria-expanded='false'>" . getUserData('name') . " -  " . getAdminName(getUserData('admin')) . "</div>
+                            <ul class='dropdown-menu' id='user-dropdown'>
+                                <li><a href='logout.php' class='dropdown-item'>Logout</a></li>
+                            </ul>
+                        ");
                     } else {
                         echo("<div class='account'><div class='daftar'><a href='register.php'>Daftar</a></div><h2>|</h2><div class='masuk'><a href='login.php'>Masuk</a></div></div>");
                     }
@@ -263,8 +284,9 @@
         <div class="mg-01">
             <div class="search-bar">
                 <input class="search-bar-input" id="search-bar-input" type="text" list="kbli" placeholder="Masukkan Sesuatu">
+                <button class="search-bar-button"><i class="fa-solid fa-magnifying-glass"></i></button>
                 <div class="data" id="data-list">
-                    <a class="data-child-no-hover">No data available.</a>
+                    <a class="data-child-no-hover data-child-none" id="data-child">No data available.</a>
                 </div>
                 <select>
                     <option value="1">Semua KBLI</option>
@@ -471,9 +493,32 @@
     <script>
         document.querySelector('.search-bar-input').addEventListener("input", () => {
             document.querySelector('.data').style.display = "block";
+            //---
+            if(document.querySelector('.search-bar-input').value == "") {
+                document.querySelector(".data-child-none").style.display = "block";
+                $(".data-child").remove();
+            } else {
+                $.post({url: "search_data.php",
+                    type: "POST",
+                    data: {string: document.querySelector('.search-bar-input').value},
+                    success: (result) => {
+                        $(".data-child").remove();
+                        //---
+                        var res = JSON.parse(result);
+                        if(res.length > 0) {
+                            document.querySelector(".data-child-none").style.display = "none";
+                            for(var i = 0; i < res.length; i++) {
+                                var text = res[i].text.replaceAll(document.querySelector('.search-bar-input').value, `<mark>${document.querySelector('.search-bar-input').value}</mark>`);
+                                var element = '<a href="index.php?detail=' + res[i].id + '" class="data-child" id="data-child">' + text + '</a>';
+                                $(".data").append(element);
+                            }
+                        }
+                    }
+                });
+            }
         });
         document.body.addEventListener("click", (event) => {
-            if(event.target.id == "search-bar-input") {
+            if(event.target.id == "search-bar-input" || event.target.id == "data-child") {
                 document.querySelector('.data').style.display = "block";
             } else {
                 document.querySelector('.data').style.display = "none";
