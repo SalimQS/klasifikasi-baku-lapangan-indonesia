@@ -91,6 +91,30 @@
             margin-top: 0px;
         }
 
+        .my{
+            text-decoration: none;
+            display: block;
+        }
+        .mx{
+            border: 1px solid black;
+            color: black;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 98%;
+            margin-top: 10px;
+            height: fit-content;
+            font-weight: 500;
+        }
+
+        .mz{
+            font-weight: 600;
+        }
+
+        .mx hr{
+            margin: 5px 0;
+        }
+
         .mi{
             background-color: #f2f2f2;
             width: fit-content;
@@ -236,7 +260,7 @@
         .search-bar-button{
             position: absolute;
             background-color: transparent;
-            color: #272727;
+            color: #9b1f15;
             border: none;
             margin-left: -40px;
             margin-top: 10px;
@@ -250,6 +274,13 @@
 
         #user-dropdown a{
             color: black;
+            text-transform: none;
+        }
+
+        mark{
+            background-color: #8fc2ff;
+            color: white;
+            padding: 0;
         }
     </style>
 </head>
@@ -288,7 +319,7 @@
                 <div class="data" id="data-list">
                     <a class="data-child-no-hover data-child-none" id="data-child">No data available.</a>
                 </div>
-                <select>
+                <select class="search-bar-select">
                     <option value="1">Semua KBLI</option>
                     <option value="2">Kode KBLI</option>
                     <option value="3">Judul KBLI</option>
@@ -322,20 +353,12 @@
                 ?>
             </div>
             <?php
-                if(isset($_GET['detail']))
-                {
-                    echo("<script>
-                    document.querySelector('.dashboard').style.display = 'none'; 
-                    document.querySelector('.kbli-detail').style.display = 'block';
-                    </script>");
-
+                if(isset($_GET['detail']) && !empty($_GET['detail'])) {
                     require_once("connection.php");
                     $conn = OpenMYSQL();
 
-                    if($result = mysqli_query($conn, "SELECT * FROM `kbli` WHERE `id`='" . $_GET['detail'] . "'"))
-                    {
-                        if(mysqli_num_rows($result) > 0)
-                        {
+                    if($result = mysqli_query($conn, "SELECT * FROM `kbli` WHERE `id`='" . $_GET['detail'] . "'")) {
+                        if(mysqli_num_rows($result) > 0) {
                             $row = mysqli_fetch_assoc($result);
                             $kode = $row['kode'];
                             ?>
@@ -369,13 +392,10 @@
                                     <?php
                                         require_once("function.php");
                                         $count = 0;
-                                        if($result2 = mysqli_query($conn, "SELECT * FROM `kbli` WHERE 1"))
-                                        {
-                                            if(mysqli_num_rows($result2) > 0)
-                                            {
+                                        if($result2 = mysqli_query($conn, "SELECT * FROM `kbli` WHERE 1")) {
+                                            if(mysqli_num_rows($result2) > 0) {
                                                 echo("<h6 class='turunan-text'>TURUNAN</h6>");
-                                                while($row2 = mysqli_fetch_assoc($result2))
-                                                {
+                                                while($row2 = mysqli_fetch_assoc($result2)) {
                                                     if($row2['mother'] == $_GET['detail']) {
                                                         echo "<a class='mh' href='index.php?detail=" . $row2['id'] . "'><div class='mi'>" . $row2['kode'] . "</div><div class='mj'>" . $row2['judul'] . "</div></a>";
                                                         $count += 1;
@@ -406,6 +426,93 @@
                         }
                     }
                     CloseMYSQL($conn);
+
+                    echo("<script>
+                    document.querySelector('.dashboard').style.display = 'none'; 
+                    document.querySelector('.kbli-detail').style.display = 'block';
+                    document.querySelector('.kbli-search').style.display = 'none';
+                    </script>");
+                } 
+                else if(isset($_GET['search']) && !empty($_GET['search'])) {
+                    $search = $_GET['search'];
+                    //---
+                    if(!isset($_GET['type']) || empty($_GET['type']))
+                        $type = 1;
+                    else
+                        $type = $_GET['type'];
+                    //---
+                    if($type < 1 || $type > 4)
+                        $type = 1;
+                    //---
+                    $count = 0;
+                    ?>
+                        <div class="kbli-search">
+                            <?php
+                                require_once("connection.php");
+                                $conn = OpenMYSQL();
+                                //---
+                                if($result = mysqli_query($conn, "SELECT * FROM `kbli` ORDER BY rand() LIMIT 40")) {
+                                    if(mysqli_num_rows($result) > 0) {
+                                        switch($type) {
+                                            case 1://semua kbli
+                                                while($row = mysqli_fetch_assoc($result)) {
+                                                    if(!ctype_alpha($row['kode'])) {
+                                                        $kbli = $row['kode'] . " - " . $row['judul'] . " - " . $row['keterangan'];
+                                                        //---
+                                                        if(strpos($kbli, $search)) {
+                                                            echo('<a class="my" href="index.php?detail=' . $row['id'] . '"><div class="mx"><div class="mz">'.$row['kode'].' - '.$row['judul'].'</div><hr>'.$row['keterangan'].'</div></a>');
+                                                            $count++;
+                                                        }
+                                                    }
+                                                }
+                                            case 2://kode
+                                                while($row = mysqli_fetch_assoc($result)) {
+                                                    if(!ctype_alpha($row['kode'])) {
+                                                        if(strpos($row['kode'], $search)) {
+                                                            echo('<a class="my" href="index.php?detail=' . $row['id'] . '"><div class="mx"><div class="mz">'.$row['kode'].' - '.$row['judul'].'</div><hr>'.$row['keterangan'].'</div></a>');
+                                                            $count++;
+                                                        }
+                                                    }
+                                                }
+                                            case 3://judul
+                                                while($row = mysqli_fetch_assoc($result)) {
+                                                    if(!ctype_alpha($row['kode'])) {
+                                                        if(strpos($row['judul'], $search)) {
+                                                            echo('<a class="my" href="index.php?detail=' . $row['id'] . '"><div class="mx"><div class="mz">'.$row['kode'].' - '.$row['judul'].'</div><hr>'.$row['keterangan'].'</div></a>');
+                                                            $count++;
+                                                        }
+                                                    }
+                                                }
+                                            case 4://keterangan
+                                                while($row = mysqli_fetch_assoc($result)) {
+                                                    if(!ctype_alpha($row['kode'])) {
+                                                        if(strpos($row['keterangan'], $search)) {
+                                                            echo('<a class="my" href="index.php?detail=' . $row['id'] . '"><div class="mx"><div class="mz">'.$row['kode'].' - '.$row['judul'].'</div><hr>'.$row['keterangan'].'</div></a>');
+                                                            $count++;
+                                                        }
+                                                    }
+                                                }
+                                        }
+                                    } 
+                                    if($count <= 0){
+                                        echo("<div style='min-height: 50vh; display: flex; justify-content: center; align-items: center; color: black; text-align: center;'><h3>Error 404<br>Nothing Found</h3></div>");
+                                    }
+                                }
+
+                                CloseMYSQL($conn);
+                            ?>
+                        </div>
+                        <script>
+                            document.querySelector('.search-bar-input').value = "<?= $search ?>";
+                            document.querySelector('.search-bar-select').value = "<?= $type ?>";
+                        </script>
+                    <?php
+
+                    echo("<script>
+                    document.querySelector('.dashboard').style.display = 'none'; 
+                    document.querySelector('.kbli-detail').style.display = 'none';
+                    document.querySelector('.kbli-search').style.display = 'block';
+                    </script>");
                 }
             ?>
         </div>
@@ -491,6 +598,23 @@
     }
     ?>
     <script>
+        document.querySelector(".search-bar-button").addEventListener("click", () => {
+            var input = document.querySelector('.search-bar-input');
+            var type = document.querySelector('.search-bar-select');
+            //---
+            if(input.value != "") 
+                window.location.href = "index.php?search=" + input.value + "&type=" + type.value;
+        })
+        document.querySelector('.search-bar-input').addEventListener("keypress", (event) => {
+            if(event.code == "Enter") {
+                var input = document.querySelector('.search-bar-input');
+                var type = document.querySelector('.search-bar-select');
+                //---
+                if(input.value != "")
+                    window.location.href = "index.php?search=" + input.value + "&type=" + type.value;
+            }
+        });
+        //---
         document.querySelector('.search-bar-input').addEventListener("input", () => {
             document.querySelector('.data').style.display = "block";
             //---
@@ -502,16 +626,21 @@
                     type: "POST",
                     data: {string: document.querySelector('.search-bar-input').value},
                     success: (result) => {
-                        $(".data-child").remove();
-                        //---
-                        var res = JSON.parse(result);
-                        if(res.length > 0) {
-                            document.querySelector(".data-child-none").style.display = "none";
-                            for(var i = 0; i < res.length; i++) {
-                                var text = res[i].text.replaceAll(document.querySelector('.search-bar-input').value, `<mark>${document.querySelector('.search-bar-input').value}</mark>`);
-                                var element = '<a href="index.php?detail=' + res[i].id + '" class="data-child" id="data-child">' + text + '</a>';
-                                $(".data").append(element);
+                        if(!result) {
+                            $(".data-child").remove();
+                            document.querySelector(".data-child-none").style.display = "block";
+                        } else {
+                            $(".data-child").remove();
+                            //---
+                            var res = JSON.parse(result);
+                            if(res.length > 0) {
+                                for(var i = 0; i < res.length; i++) {
+                                    var text = res[i].text.replaceAll(document.querySelector('.search-bar-input').value, `<mark>${document.querySelector('.search-bar-input').value}</mark>`);
+                                    var element = '<a href="index.php?detail=' + res[i].id + '" class="data-child" id="data-child">' + text + '</a>';
+                                    $(".data").append(element);
+                                }
                             }
+                            document.querySelector(".data-child-none").style.display = "none";
                         }
                     }
                 });
